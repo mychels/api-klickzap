@@ -1,0 +1,48 @@
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_code VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone_number VARCHAR(255),
+    cpf VARCHAR(255)
+);
+
+
+CREATE TABLE purchases (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    order_ref VARCHAR(255) NOT NULL,
+    order_status VARCHAR(255) NOT NULL,
+    payment_method VARCHAR(255) NOT NULL,
+    created_at DATE NOT NULL,
+    licenses_purchased INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+
+CREATE TABLE licenses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    purchase_id INT NOT NULL,
+    active TINYINT(1) NOT NULL DEFAULT 1,
+    activated TINYINT(1) NOT NULL DEFAULT 0,
+    license_key VARCHAR(255) NOT NULL,
+    start_date DATE,
+    end_date DATE,
+    valid_days INT,
+    fingerprint VARCHAR(255),
+    FOREIGN KEY (purchase_id) REFERENCES purchases(id)
+);
+
+
+CREATE TABLE licenses_sold (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    license_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (license_id) REFERENCES licenses(id)
+);
+
+
+
+INSERT INTO `users` (`id`, `user_code`, `name`, `email`, `phone_number`, `cpf`) VALUES (NULL, '652039e20d967287d6873034', 'RevendaSoft', 'revendasoft@dominio.com', NULL, NULL);
+
