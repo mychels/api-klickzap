@@ -7,8 +7,8 @@ export default class PurchaseController {
   static async cadastrarPurchase(req, res) {
     try {
       // validar compra
-      const resultado = await PurchaseController.validarPurchase(req); // comentar para testes iniciais
-      //const resultado = true; // comentar quando realmente tiver em producao
+      //const resultado = await PurchaseController.validarPurchase(req); // comentar para testes iniciais
+      const resultado = true; // comentar quando realmente tiver em producao
       const { userauth } = req.query;
 
       const userVendedor = await PurchaseController.buscarUsuario(userauth);
