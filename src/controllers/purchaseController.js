@@ -7,8 +7,8 @@ export default class PurchaseController {
   static async cadastrarPurchase(req, res) {
     try {
       // validar compra
-      //const resultado = await PurchaseController.validarPurchase(); // comentar para testes iniciais
-      const resultado = true; // comentar quando realmente tiver em producao
+      const resultado = await PurchaseController.validarPurchase(req); // comentar para testes iniciais
+      //const resultado = true; // comentar quando realmente tiver em producao
       const { userauth } = req.query;
 
       const userVendedor = await PurchaseController.buscarUsuario(userauth);
@@ -39,8 +39,8 @@ export default class PurchaseController {
 
           if (newPurchase) {
             res.status(200).json({
-              message: "cadastrado com sucesso",
-              purchase: newPurchase,
+              //message: "cadastrado com sucesso",
+              //purchase: newPurchase,
               status: "ok",
             });
 
@@ -60,16 +60,26 @@ export default class PurchaseController {
     }
   }
 
-  static async validarPurchase() {
-    const secret = "qb4xc0qnccf";
+  static async validarPurchase(req) {
+    const secret = "f5ru36x5vgx";
 
-    //const { signature } = req.query;
-    const signature = ""; // para teste
+    // receive order's data
+    let order = {};
+    try {
+      order = JSON.parse(req.body);
+    } catch (error) {
+      //return res.status(400).send({ error });
+      return false;
+    }
+
+    const { signature } = req.query;
+    //const signature = ""; // para teste
     const calculatedSignature = crypto
       .createHmac("sha1", secret)
       .update(JSON.stringify(order))
       .digest("hex");
 
+    console.log("Received order: ", order);
     console.log("signature: ", signature);
     console.log("calculatedSignature: ", calculatedSignature);
 
