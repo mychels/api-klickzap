@@ -3,6 +3,6 @@ import LicenseControler from "../controllers/licenseController.js";
 
 const routes = express.Router();
 
-routes.put("/license", LicenseControler.activateLicense);
+routes.put("/license", LicenseControler.ativarLicenca);
 
 export default routes;

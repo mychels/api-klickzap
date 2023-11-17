@@ -1,5 +1,6 @@
 import license from "../models/License.js";
 import crypto from "crypto";
+import moment from "moment-timezone";
 
 export default class LicenseController {
   static async cadastrarLicense(id_purchase, qtd, idUserVendedor) {
@@ -46,7 +47,7 @@ export default class LicenseController {
     }
   }
 
-  static async formatDate(date) {
+  static async formatDateOld(date) {
     try {
       const fusoHorarioDesejado = "America/Sao_Paulo";
 
@@ -62,32 +63,50 @@ export default class LicenseController {
     }
   }
 
+  static async formatDate(date) {
+    try {
+      const fusoHorarioDesejado = "America/Sao_Paulo";
+
+      // Cria uma instância do Moment com a data e o fuso horário desejado
+      const dataFormatada = moment(date).tz(fusoHorarioDesejado).format();
+
+      return dataFormatada;
+    } catch (e) {
+      console.log("Erro: ", e);
+    }
+  }
+
   static async activateLicense(req, res) {
     try {
       const data = req.body;
-      const chave = data.key;
-      const fingerprint = data.fingerprint;
+      const chave = data.LicenseKey;
+      const fingerprint = data.Fingerprint;
 
       if (chave !== "" && fingerprint !== "") {
         const licenseFound = await license.findOne({ key: chave }).exec();
 
         if (licenseFound) {
-          const id = licenseFound._id;
+          const id = licenseFound.id;
           const qtdDias = licenseFound.valid_days;
+
           const dataInicio = new Date();
+          const dataInicioFormatada = await LicenseController.formatDate(
+            dataInicio
+          );
           let dataFim = new Date();
           dataFim = await LicenseController.calcularDataLimite(
-            dataInicio,
+            dataInicioFormatada,
             qtdDias
           );
+          const dataFimFormatada = await LicenseController.formatDate(dataFim);
 
           //console.log("data: ", dataInicioFormat);
           //console.log("data: ", dataFimFormat);
 
           const licenca = {
             activated: true,
-            start_date: dataInicio,
-            end_date: dataFim,
+            start_date: dataInicioFormatada,
+            end_date: dataFimFormatada,
             fingerprint: fingerprint,
           };
 
@@ -116,5 +135,67 @@ export default class LicenseController {
       dataResultante.setDate(dataResultante.getDate() + dias);
     }
     return dataResultante;
+  }
+
+  // versao mysql
+  static async buscarLicenca(LicenseKey) {
+    try {
+      const licenca = await license.buscarLicense("license_key", LicenseKey);
+      if (licenca) {
+        console.log("Licenca encontrada:", licenca);
+        return licenca;
+      } else {
+        console.log("Licenca não encontrada.");
+        return;
+      }
+    } catch (e) {
+      console.log("Erro:", e);
+    }
+  }
+
+  static async ativarLicenca(req, res) {
+    try {
+      const data = req.body;
+      const licenca = await LicenseController.buscarLicenca(data.LicenseKey);
+      if (licenca) {
+        const dataInicio = new Date();
+        const dataInicioFormatada = await LicenseController.formatDate(
+          dataInicio
+        );
+        let dataFim = new Date();
+        const qtdDias = licenca.valid_days;
+        dataFim = await LicenseController.calcularDataLimite(
+          dataInicioFormatada,
+          qtdDias
+        );
+        const dataFimFormatada = await LicenseController.formatDate(dataFim);
+
+        console.log("data inicio: ", dataInicioFormatada);
+
+        const ativada = await license.ativarLicense(
+          licenca.id,
+          dataInicioFormatada,
+          dataFimFormatada,
+          data.Fingerprint
+        );
+
+        if (ativada) {
+          res.status(200).json({
+            status: "ok",
+            StartDate: dataInicioFormatada,
+            EndDate: dataFimFormatada,
+            validDays: qtdDias,
+          });
+          console.log("Retorno: ", ativada);
+        }
+      } else {
+        console.log("Licenca não existe.");
+        res.status(400).json({
+          status: "falhou",
+        });
+      }
+    } catch (e) {
+      console.log("Erro:", e);
+    }
   }
 }

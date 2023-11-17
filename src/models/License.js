@@ -67,4 +67,51 @@ export default class LicenseModel {
       return;
     }
   }
+
+  // versao mysql
+  static async buscarLicense(coluna, valor) {
+    const con = await pool.getConnection();
+
+    try {
+      const [linhas] = await con.query(
+        `SELECT * FROM licenses WHERE ${coluna} = ?`,
+        [valor]
+      );
+
+      if (linhas.length === 0) {
+        return null; // Retorna null se a licenca não for encontrada
+      }
+
+      const licenca = linhas[0];
+      return licenca;
+    } catch (e) {
+      console.error("Erro na busca da licenca:", e);
+      throw e;
+    } finally {
+      con.release(); // Libere a conexão de volta para o pool
+    }
+  }
+
+  static async ativarLicense(id, dataInicio, dataFim, fingerprint) {
+    const con = await pool.getConnection();
+
+    try {
+      const [linhas] = await con.query(
+        "UPDATE licenses SET activated = ?, start_date = ?, end_date = ?, fingerprint = ? WHERE id = ?",
+        [1, dataInicio, dataFim, fingerprint, id]
+      );
+
+      if (linhas.length === 0) {
+        return null; // Retorna null se a licenca não for ativada
+      }
+
+      const licenca = linhas.affectedRows;
+      return licenca;
+    } catch (e) {
+      console.error("Erro ao ativar a licenca:", e);
+      throw e;
+    } finally {
+      con.release(); // Libere a conexão de volta para o pool
+    }
+  }
 }
