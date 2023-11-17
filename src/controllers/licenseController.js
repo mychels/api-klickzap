@@ -192,6 +192,7 @@ export default class LicenseController {
         console.log("Licenca não existe.");
         res.status(400).json({
           status: "falhou",
+          validDays: 0,
         });
       }
     } catch (e) {
