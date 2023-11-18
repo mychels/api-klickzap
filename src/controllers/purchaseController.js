@@ -19,6 +19,7 @@ export default class PurchaseController {
         console.log("Usuario na classe purchase: ", userVendedor);
         const data = req.body;
         const idUserVendedor = userVendedor.id;
+        //const nomePlano = data.Subscription.plan.name;
 
         if (req.body.order_status == "paid") {
           // cadastrar primeiro usuario
@@ -33,7 +34,8 @@ export default class PurchaseController {
               data.order_status,
               data.payment_method,
               data.created_at,
-              2
+              2,
+              data.Subscription.plan.name
             );
           }
 
