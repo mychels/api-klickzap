@@ -3,7 +3,7 @@ import LicenseController from "../controllers/licenseController.js";
 import LicenseSoldController from "../controllers/licenseSoldController.js";
 
 export default class LicenseModel {
-  static async cadastrarLicense(id_purchase, qtd, idUserVendedor) {
+  static async cadastrarLicense(id_purchase, qtd, idUserVendedor, validade) {
     try {
       let contador = 0;
       // gerar as chaves de licenca
@@ -19,7 +19,7 @@ export default class LicenseModel {
             // Execute a inserção da nova licenca
             const [result] = await con.query(
               "INSERT INTO licenses (purchase_id, active, activated, license_key, start_date, end_date, valid_days, fingerprint) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-              [id_purchase, 1, 0, chave, null, null, 365, null]
+              [id_purchase, 1, 0, chave, null, null, validade, null]
             );
 
             // Verifique se a inserção foi bem-sucedida
@@ -34,7 +34,7 @@ export default class LicenseModel {
                 license_key: chave,
                 start_date: null,
                 end_date: null,
-                valid_days: 365,
+                valid_days: validade,
                 fingerprint: null,
               };
 

@@ -26,8 +26,8 @@ CREATE TABLE licenses (
     active TINYINT(1) NOT NULL DEFAULT 1,
     activated TINYINT(1) NOT NULL DEFAULT 0,
     license_key VARCHAR(255) NOT NULL,
-    start_date DATE,
-    end_date DATE,
+    start_date VARCHAR(255),
+    end_date VARCHAR(255),
     valid_days INT,
     fingerprint VARCHAR(255),
     FOREIGN KEY (purchase_id) REFERENCES purchases(id)

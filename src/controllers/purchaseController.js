@@ -28,14 +28,47 @@ export default class PurchaseController {
           let newPurchase = null;
 
           if (user) {
+            // Texto inicial
+            var nomePlano = data.Subscription.plan.name;
+
+            // Dividir o texto com base no caractere "-"
+            var partes = nomePlano.split(" - ");
+
+            // Extrair o número da parte 1 usando expressão regular
+            var numeroParte1 = partes[0].match(/\d+/); // Isso irá retornar um array de correspondências
+
+            // Se houver uma correspondência, pega o primeiro elemento (o número)
+            var numeroExtraido = numeroParte1
+              ? parseInt(numeroParte1[0])
+              : null;
+
+            // Exibindo o número extraído
+            console.log("Número extraído da parte 1: ", numeroExtraido);
+
+            // Agora, partes[0] conterá "20 Licenças" e partes[1] conterá "Anual"
+            var parte1 = partes[0];
+            var parte2 = partes[1];
+
+            // Exibindo as partes
+            console.log("Parte 1:", parte1);
+            console.log("Parte 2:", parte2);
+
+            var validade = 0;
+            if (parte2 === "Vitalicio") {
+              validade = 9999;
+            } else if (parte2 === "Anual") {
+              validade = 365;
+            } else {
+              validade = 30;
+            }
+
             newPurchase = await purchase.cadastrarPurchase(
               user.id,
               data.order_ref,
               data.order_status,
               data.payment_method,
               data.created_at,
-              2,
-              data.Subscription.plan.name
+              numeroExtraido
             );
           }
 
@@ -49,8 +82,9 @@ export default class PurchaseController {
             // gerar licensas
             const addLicense = await LicenseControler.cadastrarLicense(
               newPurchase.id,
-              2,
-              idUserVendedor
+              numeroExtraido,
+              idUserVendedor,
+              validade
             );
           }
         }

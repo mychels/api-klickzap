@@ -9,7 +9,8 @@ export default class UserController {
         if (
           data.hasOwnProperty("full_name") &&
           data.hasOwnProperty("email") &&
-          data.hasOwnProperty("CPF")
+          data.hasOwnProperty("CPF") &&
+          data.hasOwnProperty("mobile")
         ) {
           const userCode = await UserController.generateUserCode(24);
 
@@ -17,7 +18,7 @@ export default class UserController {
             userCode,
             data.full_name,
             data.email,
-            null,
+            data.mobile,
             data.CPF
           );
           return newUser;

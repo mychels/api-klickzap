@@ -8,7 +8,7 @@ const routes = express.Router();
 //routes.post("/purchase", PurchaseControler.cadastrarPurchase);
 
 //mysql
-//routes.post("/purchase", PurchaseControler.cadastrarPurchase);
-routes.post("/purchase", JsonController.testJSON);
+routes.post("/purchase", PurchaseControler.cadastrarPurchase);
+//routes.post("/purchase", JsonController.testJSON);
 
 export default routes;

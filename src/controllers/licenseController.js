@@ -3,12 +3,13 @@ import crypto from "crypto";
 import moment from "moment-timezone";
 
 export default class LicenseController {
-  static async cadastrarLicense(id_purchase, qtd, idUserVendedor) {
+  static async cadastrarLicense(id_purchase, qtd, idUserVendedor, validade) {
     try {
       const newLicense = await license.cadastrarLicense(
         id_purchase,
         qtd,
-        idUserVendedor
+        idUserVendedor,
+        validade
       );
       return newLicense;
     } catch (e) {
@@ -128,11 +129,13 @@ export default class LicenseController {
   }
 
   static async calcularDataLimite(data, dias) {
-    let dataResultante = new Date(data);
-    if (dias === 999) {
-      dataResultante.setFullYear(dataResultante.getFullYear() + 100);
+    let dataResultante;
+    if (dias === 9999) {
+      dataResultante = data.clone().add(100, "years");
+      //dataResultante.setFullYear(dataResultante.getFullYear() + 100);
     } else {
-      dataResultante.setDate(dataResultante.getDate() + dias);
+      dataResultante = data.clone().add(dias, "days");
+      //dataResultante.setDate(dataResultante.getDate() + dias);
     }
     return dataResultante;
   }
@@ -158,45 +161,167 @@ export default class LicenseController {
       const data = req.body;
       const licenca = await LicenseController.buscarLicenca(data.LicenseKey);
       if (licenca) {
-        const dataInicio = new Date();
-        const dataInicioFormatada = await LicenseController.formatDate(
-          dataInicio
-        );
-        let dataFim = new Date();
-        const qtdDias = licenca.valid_days;
-        dataFim = await LicenseController.calcularDataLimite(
-          dataInicioFormatada,
-          qtdDias
-        );
-        const dataFimFormatada = await LicenseController.formatDate(dataFim);
+        // verificar se a licenca ja esta ativada
+        const jaAtivada = licenca.activated;
+        const fingerPrint = data.Fingerprint;
+        if (jaAtivada === 0) {
+          //const dataInicio = new Date();
+          const dataInicio = moment().tz("America/Sao_Paulo");
+          const dataInicioFormatada = dataInicio.format("YYYY-MM-DDTHH:mm:ssZ");
+          //const dataInicioFormatada = await LicenseController.formatDate(
+          //dataInicio
+          //);
+          //let dataFim = new Date();
+          const qtdDias = licenca.valid_days;
+          const dataFim = await LicenseController.calcularDataLimite(
+            dataInicio,
+            qtdDias
+          );
+          //const dataFimFormatada = await LicenseController.formatDate(dataFim);
+          const dataFimFormatada = dataFim.format("YYYY-MM-DDTHH:mm:ssZ");
 
-        console.log("data inicio: ", dataInicioFormatada);
+          console.log("data inicio: ", dataInicioFormatada);
 
-        const ativada = await license.ativarLicense(
-          licenca.id,
-          dataInicioFormatada,
-          dataFimFormatada,
-          data.Fingerprint
-        );
+          const ativada = await license.ativarLicense(
+            licenca.id,
+            dataInicioFormatada,
+            dataFimFormatada,
+            data.Fingerprint
+          );
 
-        if (ativada) {
+          if (ativada) {
+            res.status(200).json({
+              status: "ok",
+              statusCode: 200,
+              ActivationCode: null,
+              validDays: qtdDias,
+              StartDate: dataInicioFormatada,
+              EndDate: dataFimFormatada,
+              Item_Id: null,
+              purchasecode: null,
+            });
+            console.log("Retorno: ", ativada);
+          }
+        } else if (jaAtivada === 1 && fingerPrint === licenca.fingerprint) {
+          console.log("Voce quer ativar novamente no seu computador.");
           res.status(200).json({
-            status: "ok",
-            StartDate: dataInicioFormatada,
-            EndDate: dataFimFormatada,
-            validDays: qtdDias,
+            status: "Voce quer ativar novamente no seu computador.",
+            statusCode: 201,
+            ActivationCode: null,
+            validDays: licenca.valid_days,
+            StartDate: licenca.start_date,
+            EndDate: licenca.end_date,
+            Item_Id: null,
+            purchasecode: null,
           });
-          console.log("Retorno: ", ativada);
+        } else if (jaAtivada === 1 && fingerPrint !== licenca.fingerprint) {
+          console.log(
+            "Tentativa de ativar uma licenca ativa em outro computador."
+          );
+          res.status(403).json({
+            status:
+              "Tentativa de ativar uma licenca ativa em outro computador.",
+            statusCode: 171,
+            ActivationCode: null,
+            validDays: null,
+            StartDate: null,
+            EndDate: null,
+            Item_Id: null,
+            purchasecode: null,
+          });
         }
       } else {
         console.log("Licenca não existe.");
-        res.status(400).json({
-          status: "licenca nao existe",
-          validDays: 0,
+        res.status(404).json({
+          status: "Licenca não existe.",
+          statusCode: 404,
+          ActivationCode: null,
+          validDays: null,
+          StartDate: null,
+          EndDate: null,
+          Item_Id: null,
+          purchasecode: null,
         });
       }
     } catch (e) {
       console.log("Erro:", e);
+      res.status(500).json({
+        status: "Erro ao tentar ativar licenca no servidor.",
+        statusCode: 500,
+        ActivationCode: null,
+        validDays: null,
+        StartDate: null,
+        EndDate: null,
+        Item_Id: null,
+        purchasecode: null,
+      });
+    }
+  }
+
+  static async verificarLicenca(req, res) {
+    try {
+      const data = req.body;
+      const licenca = await LicenseController.buscarLicenca(data.LicenseKey);
+      if (licenca) {
+        // verificar se a licenca ja esta ativada
+        const jaAtivada = licenca.activated;
+        const fingerPrint = data.Fingerprint;
+        if (jaAtivada === 1 && fingerPrint === licenca.fingerprint) {
+          console.log(
+            "O fingerprint do usuario é igual ao fingerprint da licenca."
+          );
+          res.status(200).json({
+            status:
+              "O fingerprint do usuario é igual ao fingerprint da licenca.",
+            statusCode: 200,
+            ActivationCode: null,
+            validDays: null,
+            StartDate: null,
+            EndDate: null,
+            Item_Id: null,
+            purchasecode: null,
+          });
+        } else if (jaAtivada === 1 && fingerPrint !== licenca.fingerprint) {
+          console.log(
+            "O fingerprint do usuario é diferente do fingerprint da licenca."
+          );
+          res.status(403).json({
+            status:
+              "O fingerprint do usuario é diferente do fingerprint da licenca.",
+            statusCode: 171,
+            ActivationCode: null,
+            validDays: null,
+            StartDate: null,
+            EndDate: null,
+            Item_Id: null,
+            purchasecode: null,
+          });
+        }
+      } else {
+        console.log("Licenca não existe.");
+        res.status(404).json({
+          status: "Licenca não existe.",
+          statusCode: 404,
+          ActivationCode: null,
+          validDays: null,
+          StartDate: null,
+          EndDate: null,
+          Item_Id: null,
+          purchasecode: null,
+        });
+      }
+    } catch (e) {
+      console.log("Erro:", e);
+      res.status(500).json({
+        status: "Erro ao tentar verificar licenca no servidor.",
+        statusCode: 500,
+        ActivationCode: null,
+        validDays: null,
+        StartDate: null,
+        EndDate: null,
+        Item_Id: null,
+        purchasecode: null,
+      });
     }
   }
 }

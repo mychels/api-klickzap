@@ -1,0 +1,93 @@
+{
+  "order_id": "ac21993c-5ae6-4dd2-9882-f3fe9f99f4cc",
+  "order_ref": "lpScfFI",
+  "order_status": "paid",
+  "payment_method": "credit_card",
+  "store_id": "cllqhXYNYDXZJfw",
+  "payment_merchant_id": "81130896",
+  "installments": 1,
+  "card_type": "mastercard",
+  "card_last4digits": "1354",
+  "card_rejection_reason": null,
+  "boleto_URL": null,
+  "boleto_barcode": null,
+  "boleto_expiry_date": null,
+  "pix_code": null,
+  "pix_expiration": null,
+  "sale_type": "producer",
+  "created_at": "2023-11-18 18:12",
+  "updated_at": "2023-11-18 18:12",
+  "approved_date": "2023-11-19 18:12",
+  "refunded_at": null,
+  "Product": {
+    "product_id": "a0cb804a-9086-416f-af1d-b89e975ec83a",
+    "product_name": "Example product"
+  },
+  "Customer": {
+    "full_name": "John Doe",
+    "email": "johndoe@example.com",
+    "mobile": "+53510370306",
+    "CPF": "11261161876",
+    "ip": "2eb4:ffd8:8268:93d:327c:c5a1:7052:c8cb"
+  },
+  "Commissions": {
+    "charge_amount": "6364",
+    "product_base_price": "6364",
+    "kiwify_fee": "700",
+    "commissioned_stores": [
+      {
+        "id": "3a88f255-e22d-463a-a81c-aaf8105951ea",
+        "type": "producer",
+        "custom_name": "Example store",
+        "email": "example@store.domain",
+        "value": "5664"
+      }
+    ],
+    "my_commission": "5664",
+    "funds_status": null,
+    "estimated_deposit_date": null,
+    "deposit_date": null
+  },
+  "TrackingParameters": {
+    "src": null,
+    "sck": null,
+    "utm_source": null,
+    "utm_medium": null,
+    "utm_campaign": null,
+    "utm_content": null,
+    "utm_term": null
+  },
+  "Subscription": {
+    "id": "98f48af6-496a-4a23-8e90-3790d8253fa2",
+    "start_date": "2023-11-15T18:12:50.197Z",
+    "next_payment": "2023-11-22T18:12:50.197Z",
+    "status": "active",
+    "plan": {
+      "id": "941244b2-70e2-4a7b-aded-8813e74c4277",
+      "name": "20 Licenças - Anual",
+      "frequency": "weekly",
+      "qty_charges": 0
+    },
+    "charges": {
+      "completed": [
+        {
+          "order_id": "ac21993c-5ae6-4dd2-9882-f3fe9f99f4cc",
+          "amount": 5664,
+          "status": "paid",
+          "installments": 1,
+          "card_type": "mastercard",
+          "card_last_digits": "1275",
+          "card_first_digits": "860684",
+          "created_at": "2023-11-15T18:12:50.197Z"
+        }
+      ],
+      "future": [
+        {
+          "charge_date": "2023-11-22T18:12:50.197Z"
+        }
+      ]
+    }
+  },
+  "subscription_id": "98f48af6-496a-4a23-8e90-3790d8253fa2",
+  "access_url": null
+}
