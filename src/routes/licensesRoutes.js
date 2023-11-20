@@ -6,6 +6,6 @@ const routes = express.Router();
 
 //routes.put("/license", LicenseControler.ativarLicenca);
 //routes.post("/license", LicenseControler.verificarLicenca);
-routes.put("/license", JsonController.testJSON);
+routes.post("/license", JsonController.testJSON);
 
 export default routes;
